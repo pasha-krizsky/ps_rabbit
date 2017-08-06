@@ -10,14 +10,14 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * A class that contains description of "teach" com.pashakrizskiy.ps_rabbit.command.
+ * A class that contains description of "teach" command.
  *
  * Created by Pavel.Krizskiy on 8/5/2017.
  */
 @Parameters(
         commandNames = {"teach"},
         commandDescription =
-                "This qcommand is aimed to teach this application send correct responses to" +
+                "This command is aimed to teach this application send correct responses to" +
                 "concrete requests."
 )
 @Getter

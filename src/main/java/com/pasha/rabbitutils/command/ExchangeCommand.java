@@ -8,7 +8,7 @@ import lombok.Getter;
 import java.util.List;
 
 /**
- * A class that contains description of "exchange" com.pashakrizskiy.ps_rabbit.command.
+ * A class that contains description of "exchange" command.
  *
  * Created by Pavel.Krizskiy on 8/5/2017.
  */

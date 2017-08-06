@@ -1,9 +1,8 @@
 package com.pasha.rabbitutils;
 
-import com.pasha.rabbitutils.conf.AppConf;
+import com.pasha.rabbitutils.keeper.CommandsKeeper;
+import com.pasha.rabbitutils.processor.CommandsSpreader;
 import com.pasha.rabbitutils.reader.ConsoleCommandReader;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * The main class.
@@ -14,8 +13,24 @@ public class App {
 
     /** Entry point */
     public static void main(String[] args) throws Exception {
-        ApplicationContext ctx = new AnnotationConfigApplicationContext(AppConf.class);
-        ConsoleCommandReader reader = (ConsoleCommandReader) ctx.getBean("consoleCommandReader");
-        new Thread(reader).start();
+
+        // Common commands keeper
+        CommandsKeeper commandsKeeper = new CommandsKeeper();
+        // Console reader
+        ConsoleCommandReader consoleCommandReader = new ConsoleCommandReader(commandsKeeper);
+        // And commands spreader
+        CommandsSpreader commandsSpreader = new CommandsSpreader(commandsKeeper);
+
+        // Create two threads, one for console reader, one for commands spreader
+        Thread threadReader = new Thread(consoleCommandReader);
+        Thread threadProcessor = new Thread(commandsSpreader);
+
+        // Run threads
+        threadReader.start();
+        threadProcessor.start();
+
+        // Wait for threads
+        threadReader.join();
+        threadProcessor.join();
     }
 }

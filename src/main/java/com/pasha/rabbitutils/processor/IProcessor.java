@@ -6,5 +6,7 @@ package com.pasha.rabbitutils.processor;
  * Created by Pavel.Krizskiy on 8/5/2017.
  */
 public interface IProcessor<T> extends Runnable {
-    void sendMessage(T message);
+
+    /** Sends concrete command to concrete processor */
+    void sendCommand(T command);
 }

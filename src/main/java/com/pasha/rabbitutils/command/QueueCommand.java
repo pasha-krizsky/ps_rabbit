@@ -8,7 +8,7 @@ import lombok.Getter;
 import java.util.List;
 
 /**
- * A class that contains description of "queue" com.pashakrizskiy.ps_rabbit.command.
+ * A class that contains description of "queue" command.
  *
  * Created by Pavel.Krizskiy on 8/5/2017.
  */
@@ -50,6 +50,14 @@ public class QueueCommand implements ICommand {
             description = "Write messages right to the queues."
     )
     private List<String> queueNamesToWrite;
+
+    /** The message to send. */
+    @Parameter(
+            names = { "-msg", "-message" },
+            listConverter = StringListConverter.class,
+            description = "The message to send."
+    )
+    private List<String> messageToSend;
 
     /** The names of the queues to stop reading messages. */
     @Parameter(
