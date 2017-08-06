@@ -32,7 +32,6 @@ public class ConsoleCommandReader implements ICommandReader {
         // Read commands until...
         while (true) {
 
-            System.out.print("Command [" + coutCommands + "]" + " >>> ");
             Scanner in = new Scanner(System.in);
             String command = in.nextLine();
 

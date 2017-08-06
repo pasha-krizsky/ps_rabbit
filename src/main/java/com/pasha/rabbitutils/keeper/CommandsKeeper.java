@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * A class that keeps all the commands.
  *
- * Created by Pavel.Krizskiy on 8/5/2017.
+ * Created by Pavel.Krizskiy on 8/6/2017.
  */
 public class CommandsKeeper {
 

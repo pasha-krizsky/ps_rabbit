@@ -5,16 +5,20 @@ import com.pasha.rabbitutils.command.ExchangeCommand;
 import com.pasha.rabbitutils.command.TeachCommand;
 import com.pasha.rabbitutils.command.QueueCommand;
 import com.pasha.rabbitutils.keeper.CommandsKeeper;
+import com.pasha.rabbitutils.keeper.DataKeeper;
 
 /**
  * A class that spreads the commands.
  *
- * Created by Pavel.Krizskiy on 8/5/2017.
+ * Created by Pavel.Krizskiy on 8/6/2017.
  */
 public class CommandsSpreader implements Runnable {
 
     /** Keeper to read commands */
     private CommandsKeeper commandsKeeper;
+
+    /** Data Keeper :) */
+    private DataKeeper dataKeeper;
 
     // All commands
     private QueueCommand queueCommand;
@@ -31,6 +35,7 @@ public class CommandsSpreader implements Runnable {
 
     public CommandsSpreader(CommandsKeeper commandsKeeper) throws Exception {
 
+        this.dataKeeper = new DataKeeper();
         this.commandsKeeper = commandsKeeper;
 
         this.queueCommand = new QueueCommand();
@@ -52,7 +57,7 @@ public class CommandsSpreader implements Runnable {
         readAndSpread();
     }
 
-    /** Read another command and give it to the concrete command processor */
+    /** Reads another command and give it to the concrete command processor */
     private void readAndSpread() {
 
         // Read it again and again
@@ -84,6 +89,7 @@ public class CommandsSpreader implements Runnable {
 
                 case "teach":
                     teachCommandProcessor.sendCommand(teachCommand);
+                    teachCommandProcessor.setDataKeeper(dataKeeper);
 
                     Thread teachCommandProcessorThread = new Thread(teachCommandProcessor);
                     teachCommandProcessorThread.start();
@@ -112,6 +118,9 @@ public class CommandsSpreader implements Runnable {
 
                     break;
             }
+
+            System.out.println("Done!");
+            System.out.println();
         }
     }
 }

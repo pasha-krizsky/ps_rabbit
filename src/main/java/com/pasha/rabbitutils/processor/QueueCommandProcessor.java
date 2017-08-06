@@ -15,10 +15,10 @@ public class QueueCommandProcessor implements IProcessor<QueueCommand> {
     /** The "queue" command. */
     private QueueCommand queueCommand;
 
-    /** RabbitMQ Wrapper */
+    /** RabbitMQ Wrapper. */
     private RabbitMQWrapper rabbitMQWrapper;
 
-    /** Initialize RabbitMQ Wrapper */
+    /** Initialize RabbitMQ Wrapper. */
     public QueueCommandProcessor() throws Exception {
         rabbitMQWrapper = new RabbitMQWrapper();
         rabbitMQWrapper.createConnection("amqp://guest:guest@localhost:5672/pasha");

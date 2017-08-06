@@ -29,7 +29,7 @@ public class TeachCommand {
             listConverter = StringListConverter.class,
             description = "The name of the queue to send requests."
     )
-    private List<String> queueNamseToRequests;
+    private List<String> queueNamesToRequests;
 
     /** The names of the queues to send responses. */
     @Parameter(
