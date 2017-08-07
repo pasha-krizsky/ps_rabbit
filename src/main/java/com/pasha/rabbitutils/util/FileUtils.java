@@ -50,7 +50,7 @@ public class FileUtils {
     /** Reads URI from file. */
     public static String readURIFromFile() {
 
-        String relativePath = "/conf/app.conf";
+        String relativePath = "/src/main/resources/app.conf";
         String absolutePath = new File("").getAbsolutePath();
         Path uriPath = Paths.get(absolutePath + relativePath);
 
@@ -58,7 +58,7 @@ public class FileUtils {
         try {
             uri = Files.readAllLines(uriPath);
         } catch (IOException e) {
-            System.out.println("Cannot read URI from file: " + absolutePath + "/conf/app.conf");
+            System.out.println("Cannot read URI from file: " + absolutePath + relativePath);
             e.printStackTrace();
         }
 

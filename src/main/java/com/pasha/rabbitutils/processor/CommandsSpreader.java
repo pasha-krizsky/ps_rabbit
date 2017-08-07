@@ -66,13 +66,22 @@ public class CommandsSpreader implements Runnable {
             // Read
             String command = commandsKeeper.readCommand();
 
-            // Parse
-            jc.parse(command.split(" "));
+            try {
+                // Parse
+                jc.parse(command.split(" "));
+            } catch (Exception e) {
+                System.out.println("Bad command, try again...");
+                continue;
+            }
+
+            System.out.println("Command was successfully parsed!");
 
             // Spread
             switch (jc.getParsedCommand()) {
 
                 case "queue":
+                    jc = new JCommander();
+                    jc.addCommand("queue", queueCommand);
                     queueCommandProcessor.sendCommand(queueCommand);
 
                     Thread queueCommandProcessorThread = new Thread(queueCommandProcessor);
@@ -88,6 +97,8 @@ public class CommandsSpreader implements Runnable {
                     break;
 
                 case "teach":
+                    jc = new JCommander();
+                    jc.addCommand("teach", teachCommand);
                     teachCommandProcessor.sendCommand(teachCommand);
                     teachCommandProcessor.setDataKeeper(dataKeeper);
 
@@ -104,6 +115,8 @@ public class CommandsSpreader implements Runnable {
                     break;
 
                 case "exchange":
+                    jc = new JCommander();
+                    jc.addCommand("exchange", exchangeCommand);
                     exchangeCommandProcessor.sendCommand(exchangeCommand);
 
                     Thread exchangeCommandProcessorThread = new Thread(exchangeCommandProcessor);
@@ -119,7 +132,6 @@ public class CommandsSpreader implements Runnable {
                     break;
             }
 
-            System.out.println("Done!");
             System.out.println();
         }
     }

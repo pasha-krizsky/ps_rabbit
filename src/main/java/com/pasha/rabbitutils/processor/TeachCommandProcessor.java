@@ -28,6 +28,7 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
     public TeachCommandProcessor() {
 
         String uri = FileUtils.readURIFromFile();
+
         rabbitMQWrapper = new RabbitMQWrapper();
 
         try {
@@ -68,12 +69,23 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
 
         // Lists of file bodies
         requestsBodies = FileUtils.convertFilesToListOfStrings(teachCommand.getFileNamesWithRequests());
+        System.out.println("Files with requests were successfully read!");
         responsesBodies = FileUtils.convertFilesToListOfStrings(teachCommand.getFileNamesWithResponses());
+        System.out.println("Files with responses were successfully read!");
 
         // Parse JSON
         if (teachCommand.getNamesOfJSONObj() != null) {
 
+            System.out.println(teachCommand.getNamesOfJSONObj());
+
+            System.out.println("Parsing JSON...");
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ignored) {}
+
+
             Set<String> newRequestsBodies = new HashSet<>();
+
             // For all requests
             for (String requestBody: requestsBodies) {
 

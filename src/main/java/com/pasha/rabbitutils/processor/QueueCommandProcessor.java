@@ -56,9 +56,7 @@ public class QueueCommandProcessor implements IProcessor<QueueCommand> {
 
         for (String queue: queueCommand.getQueueNamesToWrite()) {
             for (String msg: queueCommand.getMessageToSend()) {
-                try {
-                    rabbitMQWrapper.publishMessage(queue, msg);
-                } catch (IOException ignored) {}
+                rabbitMQWrapper.publishMessage(queue, msg);
             }
         }
     }

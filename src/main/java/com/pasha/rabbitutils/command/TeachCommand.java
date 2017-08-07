@@ -25,7 +25,7 @@ public class TeachCommand {
 
     /** The names of the queues to send requests. */
     @Parameter(
-            names = { "-reqq", "-request_queue" },
+            names = { "-reqq", "-request_queues" },
             listConverter = StringListConverter.class,
             description = "The name of the queue to send requests."
     )
@@ -33,7 +33,7 @@ public class TeachCommand {
 
     /** The names of the queues to send responses. */
     @Parameter(
-            names = { "-respq", "-response_queue" },
+            names = { "-respq", "-response_queues" },
             listConverter = StringListConverter.class,
             description = "The name of the queue to send responses."
     )
@@ -41,7 +41,7 @@ public class TeachCommand {
 
     /** The names of the files with prepared requests. */
     @Parameter(
-            names = { "-reqf", "-request_file" },
+            names = { "-reqf", "-request_files" },
             listConverter = FileListConverter.class,
             description = "The names of the files with prepared requests."
     )
@@ -49,7 +49,7 @@ public class TeachCommand {
 
     /** The names of the files with prepared responses. */
     @Parameter(
-            names = { "-respf", "-response_file" },
+            names = { "-respf", "-response_files" },
             listConverter = FileListConverter.class,
             description = "The names of the files with prepared responses."
     )
