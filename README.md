@@ -10,6 +10,15 @@ For now there is only one line in this file, that contains URI to connect to Rab
 #### Example of correct URI:
 `amqp://user:password@host:5672/vHost`
 
+## How to write commands
+
+There are two ways to write commands:
+* Write commands rigth to console
+* Read commands from file. Warning! Each command should be placed in one line.
+
+To read commands from file you should fill in the file placed in `/src/main/resources/commands`
+
+
 ## Commands
 
 ### Teach command
