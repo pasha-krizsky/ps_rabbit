@@ -40,7 +40,7 @@ In this section all parameters of `teach` command are listed. Each parameter has
 This command will teach the program to reply in concrete queues with concrete responses when you obtain concrete requests in concrete queues.
 
 #### Example 2 (with -jm): 
-`teach -reqq req_queue_1 -reqf C:\req_file.json -respq resp_queue_1 -respf C:\resp_file.json -jm request.requestContent`
+`teach -reqq req_queue_1 -reqf C:\req_file.json -respq resp_queue_1 -respf C:\resp_file.json -jm request,requestContent`
 
 This command will only compare JSON content that placed inside request.requestContent. To explain this example, if you have JSON like this one:
 
