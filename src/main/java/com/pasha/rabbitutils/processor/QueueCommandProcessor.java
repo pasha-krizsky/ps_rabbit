@@ -2,6 +2,7 @@ package com.pasha.rabbitutils.processor;
 
 import com.pasha.rabbitutils.bus.RabbitMQWrapper;
 import com.pasha.rabbitutils.command.QueueCommand;
+import com.pasha.rabbitutils.util.FileUtils;
 
 import java.io.IOException;
 
@@ -19,10 +20,18 @@ public class QueueCommandProcessor implements IProcessor<QueueCommand> {
     private RabbitMQWrapper rabbitMQWrapper;
 
     /** Initialize RabbitMQ Wrapper. */
-    public QueueCommandProcessor() throws Exception {
+    public QueueCommandProcessor() {
+
+        String uri = FileUtils.readURIFromFile();
         rabbitMQWrapper = new RabbitMQWrapper();
-        rabbitMQWrapper.createConnection("amqp://guest:guest@localhost:5672/pasha");
-        rabbitMQWrapper.createChannel();
+
+        try {
+            rabbitMQWrapper.createConnection(uri);
+            rabbitMQWrapper.createChannel();
+        } catch (Exception e) {
+            System.out.println("Cannot open connection or create channel");
+            e.printStackTrace();
+        }
     }
 
     /** Receives the "queue" command. */

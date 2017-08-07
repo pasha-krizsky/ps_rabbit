@@ -12,11 +12,20 @@ import java.util.Scanner;
 public class ConsoleCommandReader implements ICommandReader {
 
     /** Counter of commands. */
-    private static int coutCommands = 1;
+    private static int countCommands = 1;
 
     /** Keeper of commands. */
     private CommandsKeeper commandsKeeper;
 
+    private static final String HELLO_MESSAGE =
+            ".__           .__  .__          \n"    +
+            "|  |__   ____ |  | |  |   ____  \n"    +
+            "|  |  \\_/ __ \\|  | |  |  /  _ \\ \n" +
+            "|   Y  \\  ___/|  |_|  |_(  <_> )\n"   +
+            "|___|  /\\___  >____/____/\\____/ \n"  +
+            "     \\/     \\/                  ";
+
+    /** Gets command keeper. */
     public ConsoleCommandReader(CommandsKeeper commandsKeeper) {
         this.commandsKeeper = commandsKeeper;
     }
@@ -27,27 +36,31 @@ public class ConsoleCommandReader implements ICommandReader {
         readAnotherCommand();
     }
 
+    /** Reads commands from console and writes them to commands keeper. */
     private void readAnotherCommand() {
+
+        Scanner in = new Scanner(System.in);
 
         // Read commands until...
         while (true) {
 
-            Scanner in = new Scanner(System.in);
             String command = in.nextLine();
 
             // Add command to the keeper
             commandsKeeper.writeCommand(command);
 
             // ...
-            System.out.println("  [" + coutCommands + "] " + "command is processing now...");
-            coutCommands++;
+            System.out.println("  [" + countCommands + "] " + "command is processing now...");
+            countCommands++;
             // And... read another command
         }
     }
 
+    /** ... */
     private void sayHello() {
 
-        System.out.println("Welcome to the RabbitMQ Utils Console!");
+        System.out.println(HELLO_MESSAGE);
+        System.out.println("Welcome to the Publish Subscribe RabbitMQ Console!");
         System.out.println();
     }
 }

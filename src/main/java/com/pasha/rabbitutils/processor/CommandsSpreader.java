@@ -14,7 +14,7 @@ import com.pasha.rabbitutils.keeper.DataKeeper;
  */
 public class CommandsSpreader implements Runnable {
 
-    /** Keeper to read commands */
+    /** Keeper to read commands. */
     private CommandsKeeper commandsKeeper;
 
     /** Data Keeper :) */
@@ -30,7 +30,7 @@ public class CommandsSpreader implements Runnable {
     private ExchangeCommandProcessor exchangeCommandProcessor;
     private TeachCommandProcessor teachCommandProcessor;
 
-    // JCommander
+    /** JCommander */
     private JCommander jc;
 
     public CommandsSpreader(CommandsKeeper commandsKeeper) throws Exception {

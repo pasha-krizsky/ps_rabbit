@@ -54,4 +54,12 @@ public class TeachCommand {
             description = "The names of the files with prepared responses."
     )
     private List<Path> fileNamesWithResponses;
+
+    /** JSON object to compare. */
+    @Parameter(
+            names = { "-jm", "-json_mapping" },
+            listConverter = StringListConverter.class,
+            description = "JSON object to compare."
+    )
+    private List<String> namesOfJSONObj;
 }

@@ -3,11 +3,13 @@ package com.pasha.rabbitutils.bus;
 import com.pasha.rabbitutils.keeper.DataKeeper;
 import com.rabbitmq.client.*;
 import lombok.Getter;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -50,10 +52,41 @@ public class RabbitMQWrapper {
         channel.basicPublish("", queueName, null, message.getBytes());
     }
 
+    private void commonListen(DataKeeper dataKeeper, String queueName, String message) {
+        // Do we know this request message?
+        if (!dataKeeper.getQueueAndRequests().get(queueName).contains(message)) {
+            System.out.println("There is no message with such body. Use 'teach' command first");
+        } else {
+
+            // Maybe we know in which queue should we reply?
+            if (dataKeeper.getRequestAndResponseQueues().get(queueName).isEmpty()) {
+                System.out.println("No queues to send response. Use 'teach command first'");
+            } else {
+
+                // Select all queues to response to concrete request
+                for (String queueToResponse: dataKeeper.getRequestAndResponseQueues().get(queueName)) {
+
+                    // Send message to all queues
+                    for (String messageToResponse: dataKeeper.getQueueAndResponses().get(queueToResponse)) {
+                        try {
+                            publishMessage(queueToResponse, messageToResponse);
+                            System.out.println("Message was processed");
+                        } catch (IOException e) {
+                            System.out.println("Cannot publish message to queue " + queueToResponse);
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /** Listens to queue and reply with prepared answers. */
     public void startListenQueueAndSendResponses(String queueName, DataKeeper dataKeeper) {
 
         System.out.println("Start listening to queue " + queueName + "...");
+
+        dataKeeper.getQueuesNowAreListened().add(queueName);
 
         // New consumer
         DefaultConsumer consumer = new DefaultConsumer(channel) {
@@ -67,27 +100,59 @@ public class RabbitMQWrapper {
                 String message = new String(body, "UTF-8");
                 System.out.println("Got message:");
                 System.out.println(message);
+                System.out.println();
 
-                // Do we know this request message?
-                if (!dataKeeper.getQueueAndRequests().get(queueName).contains(message)) {
-                    System.out.println("There is no message with such body. Use 'teach' command first");
-                } else {
+                commonListen(dataKeeper, queueName, message);
 
-                    // Maybe we know in which queue should we reply?
-                    if (dataKeeper.getRequestAndResponseQueues().get(queueName).isEmpty()) {
-                        System.out.println("No queues to send response. Use 'teach command first'");
-                    } else {
+                this.handleCancelOk("accepted");
+            }
+        };
 
-                        // Select all queues to response to concrete request
-                        for (String queueToResponse: dataKeeper.getRequestAndResponseQueues().get(queueName)) {
+        try {
+            // Listen
+            channel.basicConsume(queueName, true, consumer);
 
-                            // Send message to all queues
-                            for (String messageToResponse: dataKeeper.getQueueAndResponses().get(queueToResponse)) {
-                                publishMessage(queueToResponse, messageToResponse);
-                            }
-                        }
-                    }
+        } catch (IOException e) {
+            System.out.println("Cannot receive message from queue " + queueName);
+            e.printStackTrace();
+        }
+    }
+
+    /** Listens to queue and reply with prepared answers. */
+    public void startListenQueueAndSendResponsesJSON(
+            String queueName,
+            DataKeeper dataKeeper,
+            List<String> pathToJSONObject
+    ) {
+
+        System.out.println("Start listening to queue " + queueName + "...");
+
+        dataKeeper.getQueuesNowAreListened().add(queueName);
+
+        // New consumer
+        DefaultConsumer consumer = new DefaultConsumer(channel) {
+
+            @Override
+            public void handleDelivery(String consumerTag, Envelope envelope,
+                                       AMQP.BasicProperties properties, byte[] body)
+                    throws IOException {
+
+                // Get message from the queue
+                String message = new String(body, "UTF-8");
+
+                JSONObject json = new JSONObject(message);
+                json = (JSONObject) json.get(pathToJSONObject.get(0));
+
+                for (int i = 1; i < pathToJSONObject.size(); ++i) {
+                    json = (JSONObject) json.get(pathToJSONObject.get(i));
                 }
+
+                message = json.toString();
+                System.out.println("Got message:");
+                System.out.println(message);
+                System.out.println();
+
+                commonListen(dataKeeper, queueName, message);
 
                 this.handleCancelOk("accepted");
             }

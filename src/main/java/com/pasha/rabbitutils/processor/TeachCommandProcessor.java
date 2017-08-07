@@ -5,9 +5,9 @@ import com.pasha.rabbitutils.command.TeachCommand;
 import com.pasha.rabbitutils.keeper.DataKeeper;
 import com.pasha.rabbitutils.util.FileUtils;
 import lombok.Setter;
+import org.json.JSONObject;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A class that processes the "teach" command.
@@ -25,12 +25,19 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
 
     private RabbitMQWrapper rabbitMQWrapper;
 
-    public TeachCommandProcessor()
-            throws Exception {
+    public TeachCommandProcessor() {
 
+        String uri = FileUtils.readURIFromFile();
         rabbitMQWrapper = new RabbitMQWrapper();
-        rabbitMQWrapper.createConnection("amqp://guest:guest@localhost:5672/pasha");
-        rabbitMQWrapper.createChannel();
+
+        try {
+            rabbitMQWrapper.createConnection(uri);
+            rabbitMQWrapper.createChannel();
+        } catch (Exception e) {
+            System.out.println("Cannot open connection or create channel");
+            e.printStackTrace();
+        }
+
     }
 
     /** Receives the "teach" command. */
@@ -53,7 +60,7 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
         }
     }
 
-    /** Teaches the program to reply with concrete answers to concrete requests */
+    /** Teaches the program to reply with concrete answers to concrete requests. */
     private void teachAnswerToRequests() {
 
         Set<String> requestsBodies;
@@ -63,9 +70,36 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
         requestsBodies = FileUtils.convertFilesToListOfStrings(teachCommand.getFileNamesWithRequests());
         responsesBodies = FileUtils.convertFilesToListOfStrings(teachCommand.getFileNamesWithResponses());
 
+        // Parse JSON
+        if (teachCommand.getNamesOfJSONObj() != null) {
+
+            Set<String> newRequestsBodies = new HashSet<>();
+            // For all requests
+            for (String requestBody: requestsBodies) {
+
+                JSONObject json = new JSONObject(requestBody);
+                json = (JSONObject) json.get(teachCommand.getNamesOfJSONObj().get(0));
+
+                for (int i = 1; i < teachCommand.getNamesOfJSONObj().size(); ++i) {
+                    json = (JSONObject) json.get(teachCommand.getNamesOfJSONObj().get(i));
+                }
+
+                newRequestsBodies.add(json.toString());
+            }
+
+            requestsBodies = new HashSet<>(newRequestsBodies);
+        }
+
         // Remember requests bodies for queues
         for (String requestQueue: teachCommand.getQueueNamesToRequests()) {
-            dataKeeper.getQueueAndRequests().put(requestQueue, requestsBodies);
+            if (dataKeeper.getQueueAndRequests().get(requestQueue) == null) {
+                dataKeeper.getQueueAndRequests().put(requestQueue, new HashSet<>());
+            }
+
+            for (String requestsBody: requestsBodies) {
+                dataKeeper.getQueueAndRequests().get(requestQueue).add(requestsBody);
+            }
+
         }
 
         // Remember response bodies for queues
@@ -82,9 +116,18 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
             }
         }
 
-        // Add listeners for each request queue
-        for (String requestQueue: teachCommand.getQueueNamesToRequests()) {
-            rabbitMQWrapper.startListenQueueAndSendResponses(requestQueue, dataKeeper);
+        if (teachCommand.getNamesOfJSONObj() == null) {
+            // Add listeners for each request queue
+            for (String requestQueue: teachCommand.getQueueNamesToRequests()) {
+                if (!dataKeeper.getQueuesNowAreListened().contains(requestQueue))
+                    rabbitMQWrapper.startListenQueueAndSendResponses(requestQueue, dataKeeper);
+            }
+        } else {
+            for (String requestQueue: teachCommand.getQueueNamesToRequests()) {
+                if (!dataKeeper.getQueuesNowAreListened().contains(requestQueue))
+                    rabbitMQWrapper.startListenQueueAndSendResponsesJSON(
+                            requestQueue, dataKeeper, teachCommand.getNamesOfJSONObj());
+            }
         }
     }
 }

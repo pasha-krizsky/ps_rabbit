@@ -10,17 +10,17 @@ import java.util.List;
  */
 public class CommandsKeeper {
 
-    /** List of commands */
+    /** List of commands. */
     private List<String> commands;
 
-    /** Max number of commands in queue */
+    /** Max number of commands in queue. */
     private static final int MAX_AMOUNT_OF_COMMANDS = 31;
 
     public CommandsKeeper() {
         commands = new LinkedList<>();
     }
 
-    /** Read first command from the queue */
+    /** Read first command from the queue. */
     public synchronized String readCommand() {
 
         // If there are no commands, sleep...
