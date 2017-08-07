@@ -1,13 +1,22 @@
 # Publish Subscribe RabbitMQ
 Simple java application to interact with RabbitMQ.
 
-# Commands
+## Commands
 
-## Teach command
+### Teach command
 This command allows you to teach the program 
 
 #### Example 1: 
-`teach -reqq test_req_queue_1 -reqf C:\test_req_fl_1.json -respq test_resp_queue_1 -respf C:\test_resp_fl_1.json`
+`teach -reqq req_queue_1,req_queue_2,req_queue_3 -reqf C:\req_file.json -respq resp_queue_1,resp_queue_2 -respf C:\resp_file.json`
 
 This command will teach the program to reply in concrete queues with concrete responses when you obtain concrete requests in concrete queues.
 
+#### Parameters
+
+In this section all parameters of `teach` command are listed. Each parameter has short and full representation.
+
+* `-reqq` (-request_queues) - list of queues separated by commas which contains names of queues to listen.
+* `-respq` (-response_queues) - list of queues separated by commas which contains names of queues to send responses.
+* `-reqf` (-request_files) - list of files separated by commas which contains names of files to read samples of requests.
+* `-respf` (-response_files) - list of files separated by commas which contains names of files to read samples of responses.
+* `-jm` (-json_mapping) - allows to read from files with requests concrete JSON-object and skip all that remains.
