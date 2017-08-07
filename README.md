@@ -16,7 +16,7 @@ There are two ways to write commands:
 * Write commands rigth to console
 * Read commands from file. Warning! Each command should be placed in one line.
 
-To read commands from file you should fill in the file placed in `/src/main/resources/commands`
+To read commands from file you should fill in the file placed in `/src/main/resources/commands` before you start the app.
 
 
 ## Commands
