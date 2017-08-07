@@ -1,6 +1,15 @@
 # Publish Subscribe RabbitMQ
 Simple java application to interact with RabbitMQ.
 
+## Establish connection
+
+All configuration is placed within `/src/main/resources/app.conf` file.
+
+For now there is only one line in this file, that contains URI to connect to RabbitMQ.
+
+#### Example of correct URI:
+`amqp://user:password@host:5672/vHost`
+
 ## Commands
 
 ### Teach command
