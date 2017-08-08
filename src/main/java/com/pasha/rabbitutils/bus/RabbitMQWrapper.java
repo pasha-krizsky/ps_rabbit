@@ -6,9 +6,6 @@ import lombok.Getter;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
@@ -27,34 +24,51 @@ public class RabbitMQWrapper {
     private Channel channel;
 
     /** Creates and returns new connection to RabbitMQ. */
-    public Connection createConnection(String uri)
-            throws
-            URISyntaxException, NoSuchAlgorithmException, KeyManagementException,
-            IOException, TimeoutException {
+    public Connection createConnection(String uri) {
 
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setUri(uri);
-        this.connection = factory.newConnection();
+
+        try {
+            factory.setUri(uri);
+            this.connection = factory.newConnection();
+        } catch (Exception e) {
+            System.out.println("Cannot create connection to RabbitMQ");
+            e.printStackTrace();
+        }
+
         return this.connection;
     }
 
     /** Creates new channel. */
-    public Channel createChannel()
-            throws IOException {
+    public Channel createChannel() {
 
-        this.channel = this.connection.createChannel();
+        try {
+            this.channel = this.connection.createChannel();
+        } catch (IOException e) {
+            System.out.println("Cannot create channel");
+            e.printStackTrace();
+        }
+
         return this.channel;
     }
 
     /** Sends message without properties right to the queue. */
-    public void publishMessage(String queueName, String message)
-            throws IOException {
-        channel.basicPublish("", queueName, null, message.getBytes());
+    public void publishMessage(String queueName, String message) {
+
+        try {
+            channel.basicPublish("", queueName, null, message.getBytes());
+        } catch (IOException e) {
+            System.out.println("Cannot publish message to queue: " + queueName + " with body: " + message);
+            e.printStackTrace();
+        }
     }
 
+    /** Method for listeners. */
     private void commonListen(DataKeeper dataKeeper, String queueName, String message) {
         // Do we know this request message?
         if (!dataKeeper.getQueueAndRequests().get(queueName).contains(message)) {
+            System.out.println("Got message:");
+            System.out.println(message);
             System.out.println("There is no message with such body. Use 'teach' command first");
         } else {
 
@@ -68,13 +82,9 @@ public class RabbitMQWrapper {
 
                     // Send message to all queues
                     for (String messageToResponse: dataKeeper.getQueueAndResponses().get(queueToResponse)) {
-                        try {
-                            publishMessage(queueToResponse, messageToResponse);
-                            System.out.println("Message was processed");
-                        } catch (IOException e) {
-                            System.out.println("Cannot publish message to queue " + queueToResponse);
-                            e.printStackTrace();
-                        }
+                        publishMessage(queueToResponse, messageToResponse);
+                        System.out.println("Message was processed!");
+                        System.out.println("Response was sent to " + queueToResponse);
                     }
                 }
             }
@@ -114,7 +124,6 @@ public class RabbitMQWrapper {
 
         } catch (IOException e) {
             System.out.println("Cannot receive message from queue " + queueName);
-            e.printStackTrace();
         }
     }
 
