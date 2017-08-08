@@ -19,8 +19,7 @@ public class ExchangeCommandProcessor implements IProcessor<ExchangeCommand> {
     }
 
     /** Processes the "exchange" command. */
-    @Override
-    public void run() {
+    public void process() {
         // process exchange command
     }
 }

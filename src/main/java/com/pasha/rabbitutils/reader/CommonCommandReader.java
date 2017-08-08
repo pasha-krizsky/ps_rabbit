@@ -32,6 +32,7 @@ public class CommonCommandReader implements ICommandReader {
             "|___|  /\\___  >____/____/\\____/ \n"  +
             "     \\/     \\/                  ";
 
+
     /** Gets command keeper. */
     public CommonCommandReader(CommandsKeeper commandsKeeper) {
         this.commandsKeeper = commandsKeeper;
@@ -81,7 +82,7 @@ public class CommonCommandReader implements ICommandReader {
             System.out.println("  [" + countCommands + "] " + "command is processing now...");
 
             try {
-                Thread.sleep(2000L);
+                Thread.sleep(1000L);
             } catch (InterruptedException e) {
                 System.out.println("Thread " + Thread.currentThread().getName() + " was interrupted");
                 e.printStackTrace();

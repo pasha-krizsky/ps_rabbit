@@ -115,7 +115,7 @@ public class RabbitMQWrapper {
     public void startListenQueueAndSendResponsesJSON(
             String queueName,
             DataKeeper dataKeeper,
-            List<String> pathToJSONObject,
+            List<String> pathToJSONObjectToCompare,
             List<String> listOfJSONObjectsToMap
     ) {
 
@@ -138,10 +138,10 @@ public class RabbitMQWrapper {
                 String fullRequestMessage = new String(requestMessage);
 
                 JSONObject json = new JSONObject(requestMessage);
-                json = (JSONObject) json.get(pathToJSONObject.get(0));
+                json = (JSONObject) json.get(pathToJSONObjectToCompare.get(0));
 
-                for (int i = 1; i < pathToJSONObject.size(); ++i) {
-                    json = (JSONObject) json.get(pathToJSONObject.get(i));
+                for (int i = 1; i < pathToJSONObjectToCompare.size(); ++i) {
+                    json = (JSONObject) json.get(pathToJSONObjectToCompare.get(i));
                 }
 
                 // Required part of request message to find proper response
@@ -149,9 +149,6 @@ public class RabbitMQWrapper {
                 System.out.println("Got message!");
                 System.out.println();
 
-                //commonListen(dataKeeper, queueName, message);
-                // Do we know this request message?
-                // ----------------------------------------------------------------------------------------
                 if (!dataKeeper.getQueueAndRequests().get(queueName).contains(requestMessage)) {
                     System.out.println("Unknown message. Use 'teach' command first");
                 } else {
@@ -160,8 +157,6 @@ public class RabbitMQWrapper {
 
                         int index = dataKeeper.getQueueAndRequests().get(queueName).indexOf(requestMessage);
                         String messageToResponse = dataKeeper.getQueueAndResponses().get(queueToResponse).get(index);
-
-                        System.out.println(listOfJSONObjectsToMap);
 
                         String preparedMessage = messageToResponse;
                         if (listOfJSONObjectsToMap != null) {

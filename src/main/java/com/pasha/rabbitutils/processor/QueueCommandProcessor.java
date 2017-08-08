@@ -39,8 +39,7 @@ public class QueueCommandProcessor implements IProcessor<QueueCommand> {
     }
 
     /** Processes the "queue" command. */
-    @Override
-    public void run() {
+    public void process() {
 
         if (queueCommand.getQueueNamesToWrite() != null) {
             if (queueCommand.getMessageToSend() != null) {

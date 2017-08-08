@@ -23,33 +23,40 @@ public class FileUtils {
         Set<String> result = new HashSet<>();
 
         for (Path file: files) {
-            try {
-                List<String> lines = Files.readAllLines(file);
-                StringBuilder sb = new StringBuilder();
-
-                // Add file content to StringBuilder
-                for (String line: lines) {
-                    sb.append(line);
-                    sb.append("\r\n");
-                }
-
-                // Remove last symbols
-                if (sb.length() > 1) {
-                    sb.deleteCharAt(sb.length() - 1);
-                    sb.deleteCharAt(sb.length() - 1);
-                }
-
-                // Add file's content
-                result.add(sb.toString());
-
-            } catch (IOException e) {
-                System.out.println("Cannot read file with name " + file.getFileName());
-                e.printStackTrace();
-            }
+            result.add(convertFileToString(file));
         }
 
         return result;
     }
+
+    /** Converts a file into a String. */
+    public static String convertFileToString(Path file) {
+
+        String result = null;
+
+        try {
+            List<String> lines = Files.readAllLines(file);
+            StringBuilder sb = new StringBuilder();
+            // Add file content to StringBuilder
+            for (String line: lines) {
+                sb.append(line);
+                sb.append("\r\n");
+            }
+            // Remove last symbols
+            if (sb.length() > 2) {
+                sb.deleteCharAt(sb.length() - 1);
+                sb.deleteCharAt(sb.length() - 1);
+            }
+
+            result = sb.toString();
+        } catch (IOException e) {
+            System.out.println("Cannot read file with name " + file.getFileName());
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
 
     /** Reads URI from file. */
     public static String readURIFromFile() {
@@ -64,7 +71,6 @@ public class FileUtils {
             uri = Files.readAllLines(uriPath);
         } catch (IOException e) {
             System.out.println("Cannot read URI from file: " + absolutePath + relativePath);
-            e.printStackTrace();
         }
 
         return uri.get(0);

@@ -20,27 +20,10 @@ public class CommandsSpreader implements Runnable {
     /** Data Keeper :) */
     private DataKeeper dataKeeper;
 
-    // All commands
-    private QueueCommand queueCommand;
-    private TeachCommand teachCommand;
-    private ExchangeCommand exchangeCommand;
-
-    // All command processors
-    private QueueCommandProcessor queueCommandProcessor;
-    private ExchangeCommandProcessor exchangeCommandProcessor;
-    private TeachCommandProcessor teachCommandProcessor;
-
-    /** JCommander */
-    private JCommander jc;
-
     public CommandsSpreader(CommandsKeeper commandsKeeper) throws Exception {
 
         this.dataKeeper = new DataKeeper();
         this.commandsKeeper = commandsKeeper;
-
-        this.queueCommandProcessor = new QueueCommandProcessor();
-        this.exchangeCommandProcessor = new ExchangeCommandProcessor();
-        this.teachCommandProcessor = new TeachCommandProcessor();
     }
 
     @Override
@@ -54,11 +37,12 @@ public class CommandsSpreader implements Runnable {
         // Read it again and again
         while (true) {
 
-            this.queueCommand = new QueueCommand();
-            this.teachCommand = new TeachCommand();
-            this.exchangeCommand = new ExchangeCommand();
+            QueueCommand queueCommand = new QueueCommand();
+            TeachCommand teachCommand = new TeachCommand();
+            ExchangeCommand exchangeCommand = new ExchangeCommand();
 
-            jc = new JCommander();
+            JCommander jc = new JCommander();
+
             jc.addCommand("queue", queueCommand);
             jc.addCommand("teach", teachCommand);
             jc.addCommand("exchange", exchangeCommand);
@@ -70,7 +54,7 @@ public class CommandsSpreader implements Runnable {
                 // Parse
                 jc.parse(command.split(" "));
             } catch (Exception e) {
-                System.out.println("Bad command, try again...");
+                System.out.println("Cannot parse command, try again...");
                 continue;
             }
 
@@ -80,56 +64,33 @@ public class CommandsSpreader implements Runnable {
             switch (jc.getParsedCommand()) {
 
                 case "queue":
+
                     jc = new JCommander();
                     jc.addCommand("queue", queueCommand);
+                    QueueCommandProcessor queueCommandProcessor = new QueueCommandProcessor();
                     queueCommandProcessor.sendCommand(queueCommand);
-
-                    Thread queueCommandProcessorThread = new Thread(queueCommandProcessor);
-                    queueCommandProcessorThread.start();
-
-                    try {
-                        queueCommandProcessorThread.join();
-                    } catch (InterruptedException e) {
-                        System.out.println("Thread " + Thread.currentThread().getName() + " was interrupted");
-                        e.printStackTrace();
-                    }
+                    queueCommandProcessor.process();
 
                     break;
 
                 case "teach":
-                    jc = new JCommander();
 
+                    jc = new JCommander();
                     jc.addCommand("teach", teachCommand);
-                    teachCommandProcessor = new TeachCommandProcessor();
+                    TeachCommandProcessor teachCommandProcessor = new TeachCommandProcessor();
                     teachCommandProcessor.sendCommand(teachCommand);
                     teachCommandProcessor.setDataKeeper(dataKeeper);
-
-                    Thread teachCommandProcessorThread = new Thread(teachCommandProcessor);
-                    teachCommandProcessorThread.start();
-
-                    try {
-                        teachCommandProcessorThread.join();
-                    } catch (InterruptedException e) {
-                        System.out.println("Thread " + Thread.currentThread().getName() + " was interrupted");
-                        e.printStackTrace();
-                    }
+                    teachCommandProcessor.process();
 
                     break;
 
                 case "exchange":
+
                     jc = new JCommander();
                     jc.addCommand("exchange", exchangeCommand);
+                    ExchangeCommandProcessor exchangeCommandProcessor = new ExchangeCommandProcessor();
                     exchangeCommandProcessor.sendCommand(exchangeCommand);
-
-                    Thread exchangeCommandProcessorThread = new Thread(exchangeCommandProcessor);
-                    exchangeCommandProcessorThread.start();
-
-                    try {
-                        exchangeCommandProcessorThread.join();
-                    } catch (InterruptedException e) {
-                        System.out.println("Thread " + Thread.currentThread().getName() + " was interrupted");
-                        e.printStackTrace();
-                    }
+                    exchangeCommandProcessor.process();
 
                     break;
             }

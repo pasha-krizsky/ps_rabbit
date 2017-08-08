@@ -16,6 +16,7 @@ public class App {
 
         // Common commands keeper
         CommandsKeeper commandsKeeper = new CommandsKeeper();
+
         // Console reader
         CommonCommandReader commonCommandReader = new CommonCommandReader(commandsKeeper);
         // And commands spreader

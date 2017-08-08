@@ -28,7 +28,6 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
     public TeachCommandProcessor() {
 
         String uri = FileUtils.readURIFromFile();
-
         rabbitMQWrapper = new RabbitMQWrapper();
 
         try {
@@ -38,7 +37,6 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
             System.out.println("Cannot open connection or create channel");
             e.printStackTrace();
         }
-
     }
 
     /** Receives the "teach" command. */
@@ -47,17 +45,17 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
         this.teachCommand = command;
     }
 
-    /** Processes the "teach" command. */
-    @Override
-    public void run() {
+    public void process() {
 
         // process teach command
-        if (teachCommand.getQueueNamesToRequests() != null
-                && teachCommand.getQueueNamesToResponses() != null
-                && teachCommand.getFileNamesWithRequests() != null
-                && teachCommand.getQueueNamesToResponses() != null) {
+        if ((teachCommand.getQueueNamesToRequests() != null)
+                && (teachCommand.getQueueNamesToResponses() != null)
+                && (teachCommand.getFileNamesWithRequests() != null)
+                && (teachCommand.getQueueNamesToResponses() != null)) {
 
             teachAnswerToRequests();
+        } else {
+            System.out.println("Not enough parameters, try again...");
         }
     }
 
@@ -65,25 +63,23 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
     private void teachAnswerToRequests() {
 
         Set<String> requestsBodies;
-        Set<String> responsesBodies;
+        String responseBody;
 
-        // Lists of file bodies
         requestsBodies = FileUtils.convertFilesToListOfStrings(teachCommand.getFileNamesWithRequests());
         System.out.println("Files with requests were successfully read!");
-        responsesBodies = FileUtils.convertFilesToListOfStrings(teachCommand.getFileNamesWithResponses());
-        System.out.println("Files with responses were successfully read!");
+        responseBody = FileUtils.convertFileToString(teachCommand.getFileNameWithResponse());
+        System.out.println("File with response were successfully read!");
 
         List<String> jsonKeys = null;
+
         // Parse JSON
         if (teachCommand.getNamesOfJSONObjToCompare() != null) {
 
             System.out.println("Parsing JSON...");
 
             Set<String> newRequestsBodies = new HashSet<>();
-
             jsonKeys = Arrays.asList(teachCommand.getNamesOfJSONObjToCompare().get(0).split("\\."));
 
-            // For all requests
             for (String requestBody: requestsBodies) {
 
                 JSONObject json = new JSONObject(requestBody);
@@ -96,6 +92,7 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
                 newRequestsBodies.add(json.toString());
             }
 
+            // Forget about all parts of request which are not needed
             requestsBodies = new HashSet<>(newRequestsBodies);
         }
 
@@ -115,9 +112,7 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
                 dataKeeper.getQueueAndResponses().put(responseQueue, new ArrayList<>());
             }
 
-            for (String responseBody: responsesBodies) {
-                dataKeeper.getQueueAndResponses().get(responseQueue).add(responseBody);
-            }
+            dataKeeper.getQueueAndResponses().get(responseQueue).add(responseBody);
         }
 
         for (String requestQueue: teachCommand.getQueueNamesToRequests()) {
@@ -131,16 +126,17 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
         }
 
         if (teachCommand.getNamesOfJSONObjToCompare() == null) {
-            // Add listeners for each request queue
+            // Without JSON
             for (String requestQueue: teachCommand.getQueueNamesToRequests()) {
                 if (!dataKeeper.getQueuesNowAreListened().contains(requestQueue))
                     rabbitMQWrapper.startListenQueueAndSendResponses(requestQueue, dataKeeper);
             }
         } else {
+            // With JSON
             for (String requestQueue: teachCommand.getQueueNamesToRequests()) {
                 if (!dataKeeper.getQueuesNowAreListened().contains(requestQueue))
                     rabbitMQWrapper.startListenQueueAndSendResponsesJSON(
-                            requestQueue, dataKeeper, jsonKeys, teachCommand.getNamesOfJSONObjToMap());
+                            requestQueue, dataKeeper, jsonKeys, teachCommand.getNamesOfStringsToMap());
             }
         }
     }

@@ -47,13 +47,12 @@ public class TeachCommand {
     )
     private List<Path> fileNamesWithRequests;
 
-    /** The names of the files with prepared responses. */
+    /** The name of the file with prepared response. */
     @Parameter(
-            names = { "-respf", "-response_files" },
-            listConverter = FileListConverter.class,
-            description = "The names of the files with prepared responses."
+            names = { "-respf", "-response_file" },
+            description = "The name of the file with prepared response."
     )
-    private List<Path> fileNamesWithResponses;
+    private Path fileNameWithResponse;
 
     /** JSON object to compare. */
     @Parameter(
@@ -63,11 +62,11 @@ public class TeachCommand {
     )
     private List<String> namesOfJSONObjToCompare;
 
-    /** JSON object to map. */
+    /** Map strings from request JSON to response JSON. */
     @Parameter(
-            names = { "-jm", "-json_mapping" },
+            names = { "-jms", "-json_mapping_string" },
             listConverter = StringListConverter.class,
-            description = "JSON object to map."
+            description = "Map strings from request JSON to response JSON."
     )
-    private List<String> namesOfJSONObjToMap;
+    private List<String> namesOfStringsToMap;
 }
