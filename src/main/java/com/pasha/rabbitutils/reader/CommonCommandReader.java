@@ -3,9 +3,7 @@ package com.pasha.rabbitutils.reader;
 import com.pasha.rabbitutils.keeper.CommandsKeeper;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Scanner;
@@ -13,11 +11,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * A class that reads the commands from console.
+ * A class that reads the commands.
  *
  * Created by Pavel.Krizskiy on 8/5/2017.
  */
-public class ConsoleCommandReader implements ICommandReader {
+public class CommonCommandReader implements ICommandReader {
 
     /** Counter of commands. */
     private static int countCommands = 1;
@@ -25,6 +23,7 @@ public class ConsoleCommandReader implements ICommandReader {
     /** Keeper of commands. */
     private CommandsKeeper commandsKeeper;
 
+    /** ... */
     private static final String HELLO_MESSAGE =
             ".__           .__  .__          \n"    +
             "|  |__   ____ |  | |  |   ____  \n"    +
@@ -34,17 +33,18 @@ public class ConsoleCommandReader implements ICommandReader {
             "     \\/     \\/                  ";
 
     /** Gets command keeper. */
-    public ConsoleCommandReader(CommandsKeeper commandsKeeper) {
+    public CommonCommandReader(CommandsKeeper commandsKeeper) {
         this.commandsKeeper = commandsKeeper;
     }
 
+    /** Runs new thread. */
     @Override
     public void run() {
         sayHello();
         readAnotherCommand();
     }
 
-    /** Reads commands from console and writes them to commands keeper. */
+    /** Reads commands and writes them to commands keeper. */
     private void readAnotherCommand() {
 
         Scanner in = new Scanner(System.in);
@@ -53,10 +53,14 @@ public class ConsoleCommandReader implements ICommandReader {
         String relativePath = "/src/main/resources/commands";
         String absolutePath = new File("").getAbsolutePath();
 
+        // Read commands and write them to Commands Keeper
         try (Stream<String> stream = Files.lines(Paths.get(absolutePath + relativePath))) {
             List<String> lines = stream.collect(Collectors.toList());
+
             for (String line: lines) {
                 commandsKeeper.writeCommand(line);
+                System.out.println("  [" + countCommands + "] " + "command is processing now...");
+                countCommands++;
                 Thread.sleep(1000L);
             }
 
@@ -64,10 +68,10 @@ public class ConsoleCommandReader implements ICommandReader {
             System.out.println("Cannot read commands from 'commands' file...");
         }
 
-
-        // Read commands until...
+        // Read commands from console
         while (true) {
 
+            // Read command
             String command = in.nextLine();
 
             // Add command to the keeper

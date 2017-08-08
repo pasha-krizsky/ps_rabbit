@@ -13,7 +13,7 @@ import java.util.*;
 @Getter
 public class DataKeeper {
 
-    private Map<String, List<String>> requestAndResponseQueues;
+    private Map<String, Set<String>> requestAndResponseQueues;
     private Map<String, List<String>> queueAndRequests;
     private Map<String, List<String>> queueAndResponses;
 

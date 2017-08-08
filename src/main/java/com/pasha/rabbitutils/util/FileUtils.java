@@ -16,9 +16,10 @@ import java.util.Set;
  */
 public class FileUtils {
 
-    /** Converts a set of files into list of strings */
+    /** Converts a list of files into set of strings */
     public static Set<String> convertFilesToListOfStrings(List<Path> files) {
 
+        // Set of contents of files
         Set<String> result = new HashSet<>();
 
         for (Path file: files) {
@@ -26,16 +27,19 @@ public class FileUtils {
                 List<String> lines = Files.readAllLines(file);
                 StringBuilder sb = new StringBuilder();
 
+                // Add file content to StringBuilder
                 for (String line: lines) {
                     sb.append(line);
                     sb.append("\r\n");
                 }
 
+                // Remove last symbols
                 if (sb.length() > 1) {
                     sb.deleteCharAt(sb.length() - 1);
                     sb.deleteCharAt(sb.length() - 1);
                 }
 
+                // Add file's content
                 result.add(sb.toString());
 
             } catch (IOException e) {
@@ -55,6 +59,7 @@ public class FileUtils {
         Path uriPath = Paths.get(absolutePath + relativePath);
 
         List<String> uri = null;
+
         try {
             uri = Files.readAllLines(uriPath);
         } catch (IOException e) {

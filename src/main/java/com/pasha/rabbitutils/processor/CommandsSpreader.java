@@ -38,18 +38,9 @@ public class CommandsSpreader implements Runnable {
         this.dataKeeper = new DataKeeper();
         this.commandsKeeper = commandsKeeper;
 
-        this.queueCommand = new QueueCommand();
-        this.teachCommand = new TeachCommand();
-        this.exchangeCommand = new ExchangeCommand();
-
         this.queueCommandProcessor = new QueueCommandProcessor();
         this.exchangeCommandProcessor = new ExchangeCommandProcessor();
         this.teachCommandProcessor = new TeachCommandProcessor();
-
-        jc = new JCommander();
-        jc.addCommand("queue", queueCommand);
-        jc.addCommand("teach", teachCommand);
-        jc.addCommand("exchange", exchangeCommand);
     }
 
     @Override
@@ -62,6 +53,15 @@ public class CommandsSpreader implements Runnable {
 
         // Read it again and again
         while (true) {
+
+            this.queueCommand = new QueueCommand();
+            this.teachCommand = new TeachCommand();
+            this.exchangeCommand = new ExchangeCommand();
+
+            jc = new JCommander();
+            jc.addCommand("queue", queueCommand);
+            jc.addCommand("teach", teachCommand);
+            jc.addCommand("exchange", exchangeCommand);
 
             // Read
             String command = commandsKeeper.readCommand();
@@ -98,7 +98,9 @@ public class CommandsSpreader implements Runnable {
 
                 case "teach":
                     jc = new JCommander();
+
                     jc.addCommand("teach", teachCommand);
+                    teachCommandProcessor = new TeachCommandProcessor();
                     teachCommandProcessor.sendCommand(teachCommand);
                     teachCommandProcessor.setDataKeeper(dataKeeper);
 

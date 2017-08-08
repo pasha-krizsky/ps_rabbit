@@ -57,9 +57,17 @@ public class TeachCommand {
 
     /** JSON object to compare. */
     @Parameter(
-            names = { "-jm", "-json_mapping" },
+            names = { "-jc", "-json_compare" },
             listConverter = StringListConverter.class,
             description = "JSON object to compare."
     )
-    private List<String> namesOfJSONObj;
+    private List<String> namesOfJSONObjToCompare;
+
+    /** JSON object to map. */
+    @Parameter(
+            names = { "-jm", "-json_mapping" },
+            listConverter = StringListConverter.class,
+            description = "JSON object to map."
+    )
+    private List<String> namesOfJSONObjToMap;
 }

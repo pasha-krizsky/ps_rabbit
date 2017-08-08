@@ -73,25 +73,24 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
         responsesBodies = FileUtils.convertFilesToListOfStrings(teachCommand.getFileNamesWithResponses());
         System.out.println("Files with responses were successfully read!");
 
+        List<String> jsonKeys = null;
         // Parse JSON
-        if (teachCommand.getNamesOfJSONObj() != null) {
+        if (teachCommand.getNamesOfJSONObjToCompare() != null) {
 
             System.out.println("Parsing JSON...");
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ignored) {}
-
 
             Set<String> newRequestsBodies = new HashSet<>();
+
+            jsonKeys = Arrays.asList(teachCommand.getNamesOfJSONObjToCompare().get(0).split("\\."));
 
             // For all requests
             for (String requestBody: requestsBodies) {
 
                 JSONObject json = new JSONObject(requestBody);
-                json = (JSONObject) json.get(teachCommand.getNamesOfJSONObj().get(0));
+                json = (JSONObject) json.get(jsonKeys.get(0));
 
-                for (int i = 1; i < teachCommand.getNamesOfJSONObj().size(); ++i) {
-                    json = (JSONObject) json.get(teachCommand.getNamesOfJSONObj().get(i));
+                for (int i = 1; i < jsonKeys.size(); ++i) {
+                    json = (JSONObject) json.get(jsonKeys.get(i));
                 }
 
                 newRequestsBodies.add(json.toString());
@@ -109,10 +108,8 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
             for (String requestsBody: requestsBodies) {
                 dataKeeper.getQueueAndRequests().get(requestQueue).add(requestsBody);
             }
-
         }
 
-        // Remember response bodies for queues
         for (String responseQueue: teachCommand.getQueueNamesToResponses()) {
             if (dataKeeper.getQueueAndResponses().get(responseQueue) == null) {
                 dataKeeper.getQueueAndResponses().put(responseQueue, new ArrayList<>());
@@ -125,15 +122,15 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
 
         for (String requestQueue: teachCommand.getQueueNamesToRequests()) {
             if (dataKeeper.getRequestAndResponseQueues().get(requestQueue) == null) {
-                dataKeeper.getRequestAndResponseQueues().put(requestQueue, new ArrayList<>());
+                dataKeeper.getRequestAndResponseQueues().put(requestQueue, new HashSet<>());
             }
-            // Add queues to response
+
             for (String responseQueue: teachCommand.getQueueNamesToResponses()) {
                 dataKeeper.getRequestAndResponseQueues().get(requestQueue).add(responseQueue);
             }
         }
 
-        if (teachCommand.getNamesOfJSONObj() == null) {
+        if (teachCommand.getNamesOfJSONObjToCompare() == null) {
             // Add listeners for each request queue
             for (String requestQueue: teachCommand.getQueueNamesToRequests()) {
                 if (!dataKeeper.getQueuesNowAreListened().contains(requestQueue))
@@ -143,7 +140,7 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
             for (String requestQueue: teachCommand.getQueueNamesToRequests()) {
                 if (!dataKeeper.getQueuesNowAreListened().contains(requestQueue))
                     rabbitMQWrapper.startListenQueueAndSendResponsesJSON(
-                            requestQueue, dataKeeper, teachCommand.getNamesOfJSONObj());
+                            requestQueue, dataKeeper, jsonKeys, teachCommand.getNamesOfJSONObjToMap());
             }
         }
     }

@@ -2,7 +2,7 @@ package com.pasha.rabbitutils;
 
 import com.pasha.rabbitutils.keeper.CommandsKeeper;
 import com.pasha.rabbitutils.processor.CommandsSpreader;
-import com.pasha.rabbitutils.reader.ConsoleCommandReader;
+import com.pasha.rabbitutils.reader.CommonCommandReader;
 
 /**
  * The main class.
@@ -17,12 +17,12 @@ public class App {
         // Common commands keeper
         CommandsKeeper commandsKeeper = new CommandsKeeper();
         // Console reader
-        ConsoleCommandReader consoleCommandReader = new ConsoleCommandReader(commandsKeeper);
+        CommonCommandReader commonCommandReader = new CommonCommandReader(commandsKeeper);
         // And commands spreader
         CommandsSpreader commandsSpreader = new CommandsSpreader(commandsKeeper);
 
         // Create two threads, one for console reader, one for commands spreader
-        Thread threadReader = new Thread(consoleCommandReader);
+        Thread threadReader = new Thread(commonCommandReader);
         Thread threadProcessor = new Thread(commandsSpreader);
 
         // Run threads

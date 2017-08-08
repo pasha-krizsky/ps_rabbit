@@ -4,8 +4,6 @@ import com.pasha.rabbitutils.bus.RabbitMQWrapper;
 import com.pasha.rabbitutils.command.QueueCommand;
 import com.pasha.rabbitutils.util.FileUtils;
 
-import java.io.IOException;
-
 /**
  * A class that processes the "queue" command.
  *
@@ -43,6 +41,7 @@ public class QueueCommandProcessor implements IProcessor<QueueCommand> {
     /** Processes the "queue" command. */
     @Override
     public void run() {
+
         if (queueCommand.getQueueNamesToWrite() != null) {
             if (queueCommand.getMessageToSend() != null) {
                 sendMessageToQueue();

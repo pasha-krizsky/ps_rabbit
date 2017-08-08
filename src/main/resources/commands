@@ -1,2 +1,1 @@
-teach -reqq test_req_queue_1 -reqf C:\Users\Pavel.Krizskiy\test_req_fl_1.json -respq test_resp_queue_1,test_resp_queue_2 -respf C:\Users\Pavel.Krizskiy\test_resp_fl_1.json -jm request,requestContent
-teach -reqq test_req_queue_2 -reqf C:\Users\Pavel.Krizskiy\test_req_fl_2.json -respq test_resp_queue_4,test_resp_queue_3 -respf C:\Users\Pavel.Krizskiy\test_resp_fl_2.json -jm request,requestContent
+teach -reqq test_req_queue_1 -reqf C:\Users\Pavel.Krizskiy\test_req_fl_1.json -respq test_resp_queue_1 -respf C:\Users\Pavel.Krizskiy\test_resp_fl_1.json -jc request.requestContent -jm request.requestHeader.requestId,response.responseHeader.requestId,request.requestHeader.from,response.responseContent.responseFormat.amountMode

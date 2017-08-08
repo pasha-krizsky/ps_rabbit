@@ -1,6 +1,7 @@
 package com.pasha.rabbitutils.bus;
 
 import com.pasha.rabbitutils.keeper.DataKeeper;
+import com.pasha.rabbitutils.util.JSONMapper;
 import com.rabbitmq.client.*;
 import lombok.Getter;
 import org.json.JSONObject;
@@ -57,42 +58,10 @@ public class RabbitMQWrapper {
 
         try {
             channel.basicPublish("", queueName, null, message.getBytes());
+            System.out.println("Message was sent!");
         } catch (IOException e) {
             System.out.println("Cannot publish message to queue: " + queueName + " with body: " + message);
             e.printStackTrace();
-        }
-    }
-
-    /** Method for listeners. */
-    private void commonListen(DataKeeper dataKeeper, String queueName, String message) {
-        // Do we know this request message?
-        if (!dataKeeper.getQueueAndRequests().get(queueName).contains(message)) {
-            System.out.println("Unknown message. Use 'teach' command first");
-        } else {
-
-            // Maybe we know in which queue should we reply?
-            if (dataKeeper.getRequestAndResponseQueues().get(queueName).isEmpty()) {
-                System.out.println("No queues to send response. Use 'teach command first'");
-            } else {
-
-                // Select all queues to response to concrete request
-                for (String queueToResponse: dataKeeper.getRequestAndResponseQueues().get(queueName)) {
-
-                    int index = dataKeeper.getQueueAndRequests().get(queueName).indexOf(message);
-                    String messageToResponse = dataKeeper.getQueueAndResponses().get(queueToResponse).get(index);
-                    publishMessage(queueToResponse, messageToResponse);
-
-                    System.out.println("Message was processed!");
-                    System.out.println("Response was sent to " + queueToResponse);
-
-                    // Send message to all queues
-//                    for (String messageToResponse: dataKeeper.getQueueAndResponses().get(queueToResponse)) {
-//                        publishMessage(queueToResponse, messageToResponse);
-//                        System.out.println("Message was processed!");
-//                        System.out.println("Response was sent to " + queueToResponse);
-//                    }
-                }
-            }
         }
     }
 
@@ -116,7 +85,18 @@ public class RabbitMQWrapper {
                 System.out.println("Got message!");
                 System.out.println();
 
-                commonListen(dataKeeper, queueName, message);
+                if (!dataKeeper.getQueueAndRequests().get(queueName).contains(message)) {
+                    System.out.println("Unknown message. Use 'teach' command first");
+                } else {
+
+                    // Select all queues to response to concrete request
+                    for (String queueToResponse: dataKeeper.getRequestAndResponseQueues().get(queueName)) {
+                        int index = dataKeeper.getQueueAndRequests().get(queueName).indexOf(message);
+                        String messageToResponse = dataKeeper.getQueueAndResponses().get(queueToResponse).get(index);
+                        publishMessage(queueToResponse, messageToResponse);
+                        System.out.println("Response was sent to " + queueToResponse);
+                    }
+                }
 
                 this.handleCancelOk("accepted");
             }
@@ -135,8 +115,11 @@ public class RabbitMQWrapper {
     public void startListenQueueAndSendResponsesJSON(
             String queueName,
             DataKeeper dataKeeper,
-            List<String> pathToJSONObject
+            List<String> pathToJSONObject,
+            List<String> listOfJSONObjectsToMap
     ) {
+
+        // TODO: add different pathToJSONObject for one queue
 
         System.out.println("Start listening to queue " + queueName + "...");
 
@@ -151,20 +134,45 @@ public class RabbitMQWrapper {
                     throws IOException {
 
                 // Get message from the queue
-                String message = new String(body, "UTF-8");
+                String requestMessage = new String(body, "UTF-8");
+                String fullRequestMessage = new String(requestMessage);
 
-                JSONObject json = new JSONObject(message);
+                JSONObject json = new JSONObject(requestMessage);
                 json = (JSONObject) json.get(pathToJSONObject.get(0));
 
                 for (int i = 1; i < pathToJSONObject.size(); ++i) {
                     json = (JSONObject) json.get(pathToJSONObject.get(i));
                 }
 
-                message = json.toString();
+                // Required part of request message to find proper response
+                requestMessage = json.toString();
                 System.out.println("Got message!");
                 System.out.println();
 
-                commonListen(dataKeeper, queueName, message);
+                //commonListen(dataKeeper, queueName, message);
+                // Do we know this request message?
+                // ----------------------------------------------------------------------------------------
+                if (!dataKeeper.getQueueAndRequests().get(queueName).contains(requestMessage)) {
+                    System.out.println("Unknown message. Use 'teach' command first");
+                } else {
+
+                    for (String queueToResponse: dataKeeper.getRequestAndResponseQueues().get(queueName)) {
+
+                        int index = dataKeeper.getQueueAndRequests().get(queueName).indexOf(requestMessage);
+                        String messageToResponse = dataKeeper.getQueueAndResponses().get(queueToResponse).get(index);
+
+                        System.out.println(listOfJSONObjectsToMap);
+
+                        String preparedMessage = messageToResponse;
+                        if (listOfJSONObjectsToMap != null) {
+                            preparedMessage = JSONMapper.throwStringFromRequest(listOfJSONObjectsToMap, messageToResponse, fullRequestMessage);
+                        }
+
+                        publishMessage(queueToResponse, preparedMessage);
+                        System.out.println("Response was sent to " + queueToResponse);
+                    }
+
+                }
 
                 this.handleCancelOk("accepted");
             }
