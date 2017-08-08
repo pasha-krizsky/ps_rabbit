@@ -67,9 +67,7 @@ public class RabbitMQWrapper {
     private void commonListen(DataKeeper dataKeeper, String queueName, String message) {
         // Do we know this request message?
         if (!dataKeeper.getQueueAndRequests().get(queueName).contains(message)) {
-            System.out.println("Got message:");
-            System.out.println(message);
-            System.out.println("There is no message with such body. Use 'teach' command first");
+            System.out.println("Unknown message. Use 'teach' command first");
         } else {
 
             // Maybe we know in which queue should we reply?
@@ -80,12 +78,19 @@ public class RabbitMQWrapper {
                 // Select all queues to response to concrete request
                 for (String queueToResponse: dataKeeper.getRequestAndResponseQueues().get(queueName)) {
 
+                    int index = dataKeeper.getQueueAndRequests().get(queueName).indexOf(message);
+                    String messageToResponse = dataKeeper.getQueueAndResponses().get(queueToResponse).get(index);
+                    publishMessage(queueToResponse, messageToResponse);
+
+                    System.out.println("Message was processed!");
+                    System.out.println("Response was sent to " + queueToResponse);
+
                     // Send message to all queues
-                    for (String messageToResponse: dataKeeper.getQueueAndResponses().get(queueToResponse)) {
-                        publishMessage(queueToResponse, messageToResponse);
-                        System.out.println("Message was processed!");
-                        System.out.println("Response was sent to " + queueToResponse);
-                    }
+//                    for (String messageToResponse: dataKeeper.getQueueAndResponses().get(queueToResponse)) {
+//                        publishMessage(queueToResponse, messageToResponse);
+//                        System.out.println("Message was processed!");
+//                        System.out.println("Response was sent to " + queueToResponse);
+//                    }
                 }
             }
         }
@@ -108,8 +113,7 @@ public class RabbitMQWrapper {
 
                 // Get message from the queue
                 String message = new String(body, "UTF-8");
-                System.out.println("Got message:");
-                System.out.println(message);
+                System.out.println("Got message!");
                 System.out.println();
 
                 commonListen(dataKeeper, queueName, message);
@@ -157,8 +161,7 @@ public class RabbitMQWrapper {
                 }
 
                 message = json.toString();
-                System.out.println("Got message:");
-                System.out.println(message);
+                System.out.println("Got message!");
                 System.out.println();
 
                 commonListen(dataKeeper, queueName, message);

@@ -76,8 +76,6 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
         // Parse JSON
         if (teachCommand.getNamesOfJSONObj() != null) {
 
-            System.out.println(teachCommand.getNamesOfJSONObj());
-
             System.out.println("Parsing JSON...");
             try {
                 Thread.sleep(10);
@@ -105,7 +103,7 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
         // Remember requests bodies for queues
         for (String requestQueue: teachCommand.getQueueNamesToRequests()) {
             if (dataKeeper.getQueueAndRequests().get(requestQueue) == null) {
-                dataKeeper.getQueueAndRequests().put(requestQueue, new HashSet<>());
+                dataKeeper.getQueueAndRequests().put(requestQueue, new ArrayList<>());
             }
 
             for (String requestsBody: requestsBodies) {
@@ -116,12 +114,19 @@ public class TeachCommandProcessor implements IProcessor<TeachCommand> {
 
         // Remember response bodies for queues
         for (String responseQueue: teachCommand.getQueueNamesToResponses()) {
-            dataKeeper.getQueueAndResponses().put(responseQueue, responsesBodies);
+            if (dataKeeper.getQueueAndResponses().get(responseQueue) == null) {
+                dataKeeper.getQueueAndResponses().put(responseQueue, new ArrayList<>());
+            }
+
+            for (String responseBody: responsesBodies) {
+                dataKeeper.getQueueAndResponses().get(responseQueue).add(responseBody);
+            }
         }
 
         for (String requestQueue: teachCommand.getQueueNamesToRequests()) {
-            // New set for concrete request queue
-            dataKeeper.getRequestAndResponseQueues().put(requestQueue, new HashSet<>());
+            if (dataKeeper.getRequestAndResponseQueues().get(requestQueue) == null) {
+                dataKeeper.getRequestAndResponseQueues().put(requestQueue, new ArrayList<>());
+            }
             // Add queues to response
             for (String responseQueue: teachCommand.getQueueNamesToResponses()) {
                 dataKeeper.getRequestAndResponseQueues().get(requestQueue).add(responseQueue);

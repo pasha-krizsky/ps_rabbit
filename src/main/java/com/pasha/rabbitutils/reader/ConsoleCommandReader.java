@@ -68,7 +68,6 @@ public class ConsoleCommandReader implements ICommandReader {
         // Read commands until...
         while (true) {
 
-            System.out.println("[Enter new command]");
             String command = in.nextLine();
 
             // Add command to the keeper

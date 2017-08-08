@@ -3,10 +3,7 @@ package com.pasha.rabbitutils.keeper;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Keeps data in mind.
@@ -16,9 +13,10 @@ import java.util.Set;
 @Getter
 public class DataKeeper {
 
-    private Map<String, Set<String>> requestAndResponseQueues;
-    private Map<String, Set<String>> queueAndRequests;
-    private Map<String, Set<String>> queueAndResponses;
+    private Map<String, List<String>> requestAndResponseQueues;
+    private Map<String, List<String>> queueAndRequests;
+    private Map<String, List<String>> queueAndResponses;
+
     private Set<String> queuesNowAreListened;
 
     @Setter
