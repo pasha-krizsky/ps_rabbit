@@ -65,7 +65,26 @@ public class RabbitMQWrapper {
         }
     }
 
-    /** Listens to queue and reply with prepared answers. */
+    /** Sends message with correlation ID right to the queue. */
+    public void publishMessage(String queueName, String message, String correlationId) {
+
+        try {
+            BasicProperties p = new AMQP.BasicProperties();
+            channel.basicPublish("", queueName,
+                    new AMQP.BasicProperties.Builder()
+                            .correlationId(correlationId)
+                            .build(),
+                    message.getBytes());
+
+            System.out.println("Message with correlationId was sent!");
+        } catch (IOException e) {
+            System.out.println("Cannot publish message to queue: " + queueName + " with body: " + message);
+            e.printStackTrace();
+        }
+    }
+
+
+        /** Listens to queue and reply with prepared answers. */
     public void startListenQueueAndSendResponses(String queueName, DataKeeper dataKeeper) {
 
         System.out.println("Start listening to queue " + queueName + "...");
@@ -137,6 +156,8 @@ public class RabbitMQWrapper {
                 String requestMessage = new String(body, "UTF-8");
                 String fullRequestMessage = new String(requestMessage);
 
+                //properties.getCorrelationId();
+
                 JSONObject json = new JSONObject(requestMessage);
                 json = (JSONObject) json.get(pathToJSONObjectToCompare.get(0));
 
@@ -163,7 +184,14 @@ public class RabbitMQWrapper {
                             preparedMessage = JSONMapper.throwStringFromRequest(listOfJSONObjectsToMap, messageToResponse, fullRequestMessage);
                         }
 
-                        publishMessage(queueToResponse, preparedMessage);
+                        String correlationId = properties.getCorrelationId();
+
+                        if (correlationId != null) {
+                            publishMessage(queueToResponse, preparedMessage, correlationId);
+                        } else {
+                            publishMessage(queueToResponse, preparedMessage);
+                        }
+
                         System.out.println("Response was sent to " + queueToResponse);
                     }
 
